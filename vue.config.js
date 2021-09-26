@@ -7,8 +7,5 @@ module.exports = {
       symlinks: false
     }
   },
-  transpileDependencies: ["@coreui/utils", "@coreui/vue"],
-  devServer: {
-    proxy: "http://78.141.215.246:49176"
-  }
+  transpileDependencies: ["@coreui/utils", "@coreui/vue"]
 };
