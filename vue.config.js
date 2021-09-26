@@ -4,11 +4,11 @@ module.exports = {
   configureWebpack: {
     //Necessary to run npm link https://webpack.js.org/configuration/resolve/#resolve-symlinks
     resolve: {
-       symlinks: false
+      symlinks: false
     }
   },
-  transpileDependencies: [
-    '@coreui/utils',
-    '@coreui/vue'
-  ]
-}
+  transpileDependencies: ["@coreui/utils", "@coreui/vue"],
+  devServer: {
+    proxy: "http://78.141.215.246:49176"
+  }
+};
