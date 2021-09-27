@@ -13,11 +13,18 @@
             <CRow>
               <CCol sm="10">
                 <CRow>
-                  <CCol sm="12">
+                  <CCol sm="10">
                     <CInput
                       :value.sync="formData.title"
                       label="Kategori Adı"
                       placeholder="Kategori Adı"
+                    />
+                  </CCol>
+                  <CCol sm="2">
+                    <CInput
+                        :value.sync="formData.o"
+                        label="Sıra No"
+                        placeholder="Sıra No"
                     />
                   </CCol>
                 </CRow>
@@ -75,6 +82,10 @@
                   label: 'ID',
                 },
                 {
+                  key: 'o',
+                  label: 'Sıra',
+                },
+                {
                   key: 'title',
                   label: 'Kategori Adı',
                 },
@@ -126,6 +137,7 @@ export default {
       id: null,
       uploaded: "https://via.placeholder.com/250",
       companyCategories: [],
+      companyLocales: [],
       formData: {},
     };
   },
@@ -188,10 +200,18 @@ export default {
         return res;
       });
     },
+    getLocales: function () {
+      return this.$axios.get(`/locale`).then((res) => {
+        return res;
+      });
+    },
   },
   mounted() {
     this.getCategories().then(({ data }) => {
       this.companyCategories = data;
+    });
+    this.getLocales().then(({ data }) => {
+      this.companyLocales = data;
     });
   },
 };

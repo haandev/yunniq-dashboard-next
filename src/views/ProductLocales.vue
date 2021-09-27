@@ -4,9 +4,9 @@
       <CCol sm="12">
         <CCard>
           <CCardHeader>
-            <strong>Masa</strong>
+            <strong>Ürün</strong>
             <div class="card-header-actions">
-              <small v-text="modeTable === 'new' ? 'Yeni' : 'Düzenle'"></small>
+              <small v-text="modeProductLocale === 'new' ? 'Yeni' : 'Düzenle'"></small>
             </div>
           </CCardHeader>
           <CCardBody>
@@ -14,10 +14,26 @@
               <CCol sm="10">
                 <CRow>
                   <CCol sm="12">
+                    <CSelect
+                        :value.sync="formData.locale"
+                        label="Dili"
+                        placeholder="Dili"
+                        :options="['en','ar']"
+                    />
+                  </CCol>
+                  <CCol sm="8">
                     <CInput
-                      :value.sync="formData.tableName"
-                      label="Masa Adı"
-                      placeholder="Masa Adı"
+                      :value.sync="formData.title"
+                      label="Ürün Adı"
+                      placeholder="Ürün Adı"
+                    />
+                  </CCol>
+                  <CCol sm="12">
+                    <CTextarea
+                        :value.sync="formData.description"
+                        label="Açıklaması"
+                        placeholder="Açıklaması"
+                        rows="10"
                     />
                   </CCol>
                 </CRow>
@@ -28,8 +44,8 @@
             <CRow>
               <CCol sm="12" class="text-right">
                 <CButton
-                  v-if="modeTable !== 'new'"
-                  @click="updateTable(id)"
+                  v-if="modeProductLocale !== 'new'"
+                  @click="updateProductLocale(id)"
                   size="sm"
                   color="primary"
                   class="mr-1"
@@ -37,14 +53,14 @@
                 >
                 <CButton
                   v-else
-                  @click="createTable()"
+                  @click="createProductLocale()"
                   size="sm"
                   color="primary"
                   class="mr-1"
                   >Yeni Ekle</CButton
                 >
                 <CButton
-                  @click="cleanTable()"
+                  @click="cleanProductLocale()"
                   size="sm"
                   variant="outline"
                   color="primary"
@@ -61,27 +77,32 @@
       <CCol sm="12">
         <CCard>
           <CCardHeader>
-            <strong>Masalar</strong>
+            <strong>Ürünler</strong>
           </CCardHeader>
           <CCardBody>
             <CDataTable
               :columnFilter="true"
               :hover="true"
               :striped="true"
-              :items="companyTables"
+              :items="companyProductLocales"
               :fields="[
                 {
                   key: 'id',
                   label: 'ID',
                 },
                 {
-                  key: 'tableName',
-                  label: 'Masa Adı',
+                  key: 'locale',
+                  label: 'Dil',
                 },
                 {
-                  key: 'qrcode',
-                  label: 'QR Kodu',
+                  key: 'title',
+                  label: 'Ürün Adı',
                 },
+                {
+                  key: 'description',
+                  label: 'Açıklama',
+                },
+
                 {
                   key: 'actions',
                   label: 'Aksiyonlar',
@@ -93,7 +114,7 @@
               <template #actions="{ item }">
                 <td>
                   <CButton
-                    @click="editTable(item)"
+                    @click="editProductLocale(item)"
                     size="sm"
                     variant="outline"
                     color="primary"
@@ -101,13 +122,16 @@
                     >Düzenle</CButton
                   >
                   <CButton
-                    @click="removeTable(item.id)"
+                    @click="removeProductLocale(item.id)"
                     size="sm"
                     variant="outline"
                     color="danger"
                     >Sil</CButton
                   >
                 </td>
+              </template>
+              <template #categoryStr="{ item }">
+                {{ item.category.title }}
               </template>
             </CDataTable>
           </CCardBody>
@@ -121,65 +145,66 @@
 <script>
 
 export default {
-  name: "Tables",
+  name: "ProductLocales",
   components: {  },
   data() {
     return {
+      categories:[],
       mode: "new",
-      modeTable: "new",
+      modeProductLocale: "new",
       id: null,
       uploaded: "https://via.placeholder.com/250",
-      companyTables: [],
+      companyProductLocales: [],
       formData: {},
     };
   },
   
   methods: {
-    editTable(i) {
-      this.modeTable = "edit";
+    editProductLocale(i) {
+      this.modeProductLocale = "edit";
       this.formData = {...i};
       this.id = i.id;
       delete this.formData.id;
     },
-    cleanTable() {
-      this.modeTable = "new";
+    cleanProductLocale() {
+      this.modeProductLocale = "new";
       this.formData = { };
     },
-    updateTable: function (id) {
+    updateProductLocale: function (id) {
       this.$axios
-        .put(`/table/${id}`, this.formData)
+        .put(`/product-locale/${id}`,{...this.formData, productId : this.$route.params.id})
         .then(() => {
-          this.getTables().then(({ data }) => {
-            this.companyTables = data;
+          this.getProductLocales({productId:this.$route.params.id}).then(({ data }) => {
+            this.companyProductLocales = data;
           });
-          this.cleanTable();
+          this.cleanProductLocale();
         })
         .catch((err) => {
           console.log(err);
         });
     },
-    createTable: function () {
+    createProductLocale: function () {
       this.$axios
-        .post("/table", this.formData)
+        .post("/product-locale", {...this.formData, productId : this.$route.params.id})
         .then(() => {
-          this.getTables().then(({ data }) => {
-            this.companyTables = data;
+          this.getProductLocales({productId:this.$route.params.id}).then(({ data }) => {
+            this.companyProductLocales = data;
           });
-          this.cleanTable();
+          this.cleanProductLocale();
         })
         .catch((err) => {
           console.log(err);
         });
     },
-    removeTable: function (id) {
+    removeProductLocale: function (id) {
       if (confirm("Silmek istediğinize emin misiniz")) {
         this.$axios
-          .delete(`/table/${id}`)
+          .delete(`/product-locale/${id}`)
           .then(() => {
-            this.getTables().then(({ data }) => {
-              this.companyTables = data;
+            this.getProductLocales({productId:this.$route.params.id}).then(({ data }) => {
+              this.companyProductLocales = data;
             });
-            this.cleanTable();
+            this.cleanProductLocale();
           })
           .catch((err) => {
             console.log(err);
@@ -187,15 +212,18 @@ export default {
       }
     },
 
-    getTables: function () {
-      return this.$axios.get(`/table`).then((res) => {
+    getProductLocales: function (params) {
+      return this.$axios.get(`/product-locale/product/${params.productId}`).then((res) => {
         return res;
       });
     },
+
   },
   mounted() {
-    this.getTables().then(({ data }) => {
-      this.companyTables = data;
+    console.log("product id" , this.$route.params.id)
+    console.log("product id")
+    this.getProductLocales({productId:this.$route.params.id}).then(({ data }) => {
+      this.companyProductLocales = data;
     });
   },
 };

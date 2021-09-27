@@ -39,10 +39,11 @@
                     />
                   </CCol>
                   <CCol sm="12">
-                    <CInput
+                    <CTextarea
                         :value.sync="formData.description"
                         label="Açıklaması"
                         placeholder="Açıklaması"
+                        rows="10"
                     />
                   </CCol>
 
@@ -109,6 +110,10 @@
                   label: 'Ürün Adı',
                 },
                 {
+                  key: 'description',
+                  label: 'Açıklama',
+                },
+                {
                   key: 'price',
                   label: 'Fiyat',
                 },
@@ -127,15 +132,22 @@
                     size="sm"
                     variant="outline"
                     color="primary"
-                    class="mr-1"
+                    class="m-1"
                     >Düzenle</CButton
                   >
                   <CButton
                     @click="removeProduct(item.id)"
                     size="sm"
                     variant="outline"
-                    color="danger"
+                    color="danger" class="m-1"
                     >Sil</CButton
+                  >
+                  <CButton
+                    @click="$router.push({ path: `product-locales/${item.id}` })"
+                    size="sm"
+                    variant="outline"
+                    color="warning" class="m-1"
+                    >Dilleri Düzenle</CButton
                   >
                 </td>
               </template>
